@@ -7,6 +7,8 @@ persistence layer (SQLAlchemy ORM) and the API contract (Pydantic schemas).
 
 from __future__ import annotations
 
+import csv
+import io
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -334,6 +336,43 @@ def export_remediation_script(session: Session, batch_uid: str | None = None) ->
     results = _rows_to_results(rows)
     attach_remediations(results)
     return render_script(results)
+
+
+_CSV_COLUMNS = [
+    "finding_uid", "provider", "account_id", "region", "resource_type", "resource_id",
+    "rule_id", "severity", "category", "confidence", "monthly_cost", "annual_savings",
+    "title", "remediation_cli", "risk", "reversible",
+]
+
+
+def export_findings_csv(session: Session, batch_uid: str | None = None) -> str:
+    """Render the batch's findings as CSV (one row per finding, sorted by monthly cost)."""
+    batch = _resolve_batch(session, batch_uid)
+    if batch_uid and batch is None:
+        rows: list[models.Finding] = []
+    else:
+        rows = sorted(
+            _finding_rows(session, batch.id if batch else None),
+            key=lambda r: r.monthly_cost,
+            reverse=True,
+        )
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(_CSV_COLUMNS)
+    for r in rows:
+        remediation = r.remediation or {}
+        commands = remediation.get("cli_commands") or []
+        writer.writerow(
+            [
+                r.finding_uid, r.provider, r.account_id, r.region or "", r.resource_type,
+                r.resource_id, r.rule_id, r.severity, r.category, r.confidence,
+                f"{r.monthly_cost:.2f}", f"{r.annual_savings:.2f}", r.title,
+                " && ".join(commands), remediation.get("risk", ""),
+                remediation.get("reversible", ""),
+            ]
+        )
+    return buffer.getvalue()
 
 
 # --------------------------------------------------------------------------- #

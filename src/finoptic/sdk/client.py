@@ -237,3 +237,12 @@ class FinOpticClient:
         params = self._clean_params(batch_uid=batch_uid)
         response = self._request("GET", f"{_API_PREFIX}/export/remediation.sh", params=params)
         return response.text
+
+    def findings_csv(self, batch_uid: str | None = None) -> str:
+        """Return the findings as CSV text (``text/csv``).
+
+        Sends ``GET /api/v1/export/findings.csv``; ``batch_uid`` scopes it to one batch.
+        """
+        params = self._clean_params(batch_uid=batch_uid)
+        response = self._request("GET", f"{_API_PREFIX}/export/findings.csv", params=params)
+        return response.text

@@ -3,11 +3,14 @@
 > Ingest AWS/Azure billing exports → detect orphaned & idle resources → generate the exact CLI/API to
 > reclaim the spend → get a GenAI-authored executive runbook. **API-first. Safe by default. Runs fully offline.**
 
+**▶ Live demo (no setup): https://finoptic-shanto-demo.netlify.app** — the dashboard, rendered from FinOptic's real sample output.
+
 [![CI](https://github.com/shanto12/finoptic/actions/workflows/ci.yml/badge.svg)](https://github.com/shanto12/finoptic/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![tests](https://img.shields.io/badge/tests-50%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-51%20passing-brightgreen)
 ![coverage](https://img.shields.io/badge/coverage-86%25-brightgreen)
+[![live demo](https://img.shields.io/badge/live_demo-Netlify-2dd4bf)](https://finoptic-shanto-demo.netlify.app)
 
 FinOptic is a FinOps engine that turns a raw cloud bill into **a prioritized, costed, executable remediation plan**.
 On the bundled sample it finds **17 waste items worth $1,095.32/month ($13,143.84/year)** across AWS and Azure — and
@@ -33,6 +36,14 @@ billing export; what teams lack is a fast, safe way to **find it, price it, and 
 - **Explain** — a GenAI "FinOps analyst" writes an executive summary + a prioritized runbook, grounded in a FinOps
   knowledge base. Works with Anthropic / OpenAI / Azure OpenAI, and **falls back to deterministic output when no key is set**.
 - **Serve** it all behind a FastAPI API, a zero-build dashboard, a Python SDK, and a CLI.
+
+## Live demo
+
+A static, read-only snapshot of the dashboard — rendered from FinOptic's **real** sample output — is hosted on Netlify:
+
+**→ https://finoptic-shanto-demo.netlify.app**
+
+Netlify serves static sites and JS/Go functions, not long-lived Python servers, so the **FastAPI backend is not hosted there** — it runs from this repo. The demo bakes the genuine pipeline output at build time (`scripts/build_static_demo.py`) and serves the exact same dashboard UI client-side.
 
 ## Architecture
 
@@ -111,6 +122,7 @@ is swallowed and falls back to deterministic output** so a model outage can neve
 | `GET`  | `/api/v1/findings/{uid}` | Single finding |
 | `POST` | `/api/v1/analyze` | GenAI executive summary + runbook |
 | `GET`  | `/api/v1/export/remediation.sh` | Download the DRY-RUN-guarded remediation script |
+| `GET`  | `/api/v1/export/findings.csv` | Download findings as CSV (spreadsheet-ready) |
 
 Interactive OpenAPI docs at `/docs`.
 
@@ -183,13 +195,13 @@ src/finoptic/
   sdk/                 # typed Python client
   cli.py               # scan / sample / serve
 sample_data/           # realistic AWS+Azure exports + expected results
-tests/                 # 50 tests (unit, API contract, live-server SDK, CLI, security hardening)
+tests/                 # 51 tests (unit, API contract, live-server SDK, CLI, security hardening)
 ```
 
 ## Testing & quality
 
 ```bash
-make test     # 50 passing
+make test     # 51 passing
 make cov      # coverage (86%)
 make lint     # ruff
 ```

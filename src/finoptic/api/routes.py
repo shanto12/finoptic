@@ -141,3 +141,16 @@ def export_script(batch_uid: str | None = Query(None), session=Depends(get_sessi
         media_type="text/x-shellscript",
         headers={"Content-Disposition": "attachment; filename=remediation.sh"},
     )
+
+
+@router.get("/export/findings.csv")
+def export_findings_csv(
+    batch_uid: str | None = Query(None), session=Depends(get_session)
+) -> Response:
+    """Download the findings as a CSV spreadsheet (FinOps-friendly)."""
+    csv_text = service.export_findings_csv(session, batch_uid)
+    return Response(
+        content=csv_text,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=findings.csv"},
+    )

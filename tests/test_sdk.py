@@ -69,5 +69,8 @@ def test_sdk_end_to_end(base_url: str) -> None:
 
         script = client.remediation_script(batch_uid)
         assert script.startswith("#!/usr/bin/env bash")
+
+        csv_text = client.findings_csv(batch_uid)
+        assert csv_text.startswith("finding_uid,")
     finally:
         client.close()

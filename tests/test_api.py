@@ -73,6 +73,16 @@ def test_export_remediation_script(client: TestClient, sample_batch: str) -> Non
     assert "DRY_RUN" in r.text
 
 
+def test_export_findings_csv(client: TestClient, sample_batch: str) -> None:
+    r = client.get("/api/v1/export/findings.csv", params={"batch_uid": sample_batch})
+    assert r.status_code == 200
+    assert "text/csv" in r.headers["content-type"]
+    lines = r.text.strip().splitlines()
+    assert lines[0].startswith("finding_uid,provider,account_id,")
+    assert len(lines) == EXPECTED["findings"] + 1  # header + one row per finding
+    assert "AWS_RDS_IDLE" in r.text
+
+
 def test_upload_billing_file(client: TestClient) -> None:
     csv = (
         "identity_line_item_id,bill_payer_account_id,line_item_usage_account_id,product_code,"

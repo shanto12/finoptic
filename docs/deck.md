@@ -14,6 +14,8 @@
 
 `$13,143.84 / year` recoverable on the sample bill · API-first · Safe by default · Runs fully offline
 
+**▶ Live demo: https://finoptic-shanto-demo.netlify.app**
+
 ---
 
 ## Slide 2 — The problem
@@ -104,7 +106,7 @@ a severity, a confidence, and a cost. Adding a rule = adding one function.
 
 | API-first | Tested | Observable | Shippable |
 | --------- | ------ | ---------- | --------- |
-| FastAPI, OpenAPI, auth, rate-limit | **50 tests · 86% coverage** · ruff · CI (3.11/3.12) | JSON logs + request-id, Prometheus `/metrics` | Docker, Makefile, Python SDK, CLI |
+| FastAPI, OpenAPI, auth, rate-limit | **51 tests · 86% coverage** · ruff · CI (3.11/3.12) | JSON logs + request-id, Prometheus `/metrics` | Docker, Makefile, Python SDK, CLI |
 
 Built with a **multi-agent workflow**: contract-first design → 7 parallel module builders → adversarial review.
 
@@ -124,4 +126,4 @@ publish SDK to PyPI + IaC for the service.
 
 **FinOptic** — turn the cloud bill into an executable savings plan.
 
-GitHub: `github.com/shanto12/finoptic` · Shanto Mathew
+Live demo: https://finoptic-shanto-demo.netlify.app  ·  GitHub: `github.com/shanto12/finoptic` · Shanto Mathew

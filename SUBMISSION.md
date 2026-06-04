@@ -3,6 +3,7 @@
 **Candidate:** Shanto Mathew
 **Project:** FinOptic — Cloud Cost Optimizer & Remediation Engine (FinOps)
 **Tool used (end-to-end, no manual code edits):** Claude Code (Claude Opus)
+**Live demo:** https://finoptic-shanto-demo.netlify.app (the dashboard, rendered from real sample output)
 
 ## Final submission checklist
 - [x] **Public GitHub repository** — this repo (all source code).
@@ -26,6 +27,7 @@ make test                                # 50 tests
 ## Reviewer's map
 | To see… | Open |
 | --- | --- |
+| The dashboard, instantly | **Live demo →** https://finoptic-shanto-demo.netlify.app |
 | The result | `finoptic sample` → **$1,095.32/mo ($13,143.84/yr)** across AWS + Azure |
 | Project overview | [`README.md`](README.md) |
 | System design | [`ARCHITECTURE.md`](ARCHITECTURE.md) |

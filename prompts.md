@@ -95,6 +95,17 @@ and no cloud spend was incurred. *Elapsed: 5:40.*
 
 ---
 
+### Prompt 7 — Ship a live demo + a spreadsheet export
+> Make it better and get it in front of a reviewer: add a CSV export of findings (FinOps teams live in spreadsheets),
+> and host a clickable live demo. Netlify can't run the FastAPI backend, so publish a static snapshot of the dashboard
+> that renders the *real* pipeline output.
+
+**Agent:** Added `GET /api/v1/export/findings.csv` (+ SDK method + test). Wrote `scripts/build_static_demo.py` — it runs
+the real pipeline, bakes the genuine output, and serves the **same** dashboard UI client-side via a flag-guarded shim —
+then deployed to Netlify and tested the live URL: **https://finoptic-shanto-demo.netlify.app**. 51 tests green. *Elapsed: 6:20.*
+
+---
+
 ## Reflection — architect's notes
 - **Why contract-first:** freezing the domain/schema interfaces up front let the build fan out into parallel agents with
   zero interface drift — the seven modules integrated on the first run. That is the leverage of "architect, not typist."
