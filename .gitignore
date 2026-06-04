@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# FinOptic local state
+*.db
+finoptic.db
+*.sqlite3
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

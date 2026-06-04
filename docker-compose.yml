@@ -1,0 +1,12 @@
+services:
+  finoptic:
+    build: .
+    image: finoptic:latest
+    ports:
+      - "8000:8000"
+    environment:
+      FINOPTIC_ENVIRONMENT: production
+      # Optional GenAI (uncomment + supply a key to enable the LLM analyst):
+      # FINOPTIC_LLM_PROVIDER: auto
+      # ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    restart: unless-stopped

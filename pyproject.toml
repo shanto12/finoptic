@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finoptic"
+version = "0.1.0"
+description = "FinOptic — Cloud Cost Optimizer & Remediation Engine (FinOps). API-first waste detection with GenAI remediation runbooks."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Shanto Mathew" }]
+keywords = ["finops", "cloud-cost", "aws", "azure", "genai", "fastapi", "remediation"]
+dependencies = [
+    "fastapi>=0.111",
+    "uvicorn>=0.30",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "SQLAlchemy>=2.0",
+    "python-multipart>=0.0.9",
+    "httpx>=0.27",
+    "prometheus-client>=0.20",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.5", "mypy>=1.10"]
+
+[project.scripts]
+finoptic = "finoptic.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/shanto12/finoptic"
+Repository = "https://github.com/shanto12/finoptic"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+finoptic = ["dashboard/*.html", "dashboard/*.js", "dashboard/*.css", "analyze/*.json"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+filterwarnings = [
+    "ignore:Using `httpx` with `starlette.testclient`:Warning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "C4", "SIM"]
+ignore = ["B008"]  # FastAPI Depends() in defaults is idiomatic
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_ignores = true
+ignore_missing_imports = true
+plugins = []

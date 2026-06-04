@@ -1,0 +1,9 @@
+# FinOptic runtime dependencies (kept intentionally lean for broad compatibility)
+fastapi>=0.111
+uvicorn>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+SQLAlchemy>=2.0
+python-multipart>=0.0.9
+httpx>=0.27
+prometheus-client>=0.20

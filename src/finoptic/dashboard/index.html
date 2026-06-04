@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>FinOptic — Cloud Cost Optimizer</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="/styles.css" />
+  <!-- Chart.js from CDN (no build step). Loaded defer so app.js can rely on it. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <!-- Toast / error banner host -->
+  <div id="toast-host" class="toast-host" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18" />
+          <path d="M19 9l-5 5-4-4-3 3" />
+        </svg>
+      </span>
+      <div class="topbar__titles">
+        <h1 class="topbar__title">FinOptic</h1>
+        <p class="topbar__subtitle">Cloud Cost Optimizer &amp; Remediation Engine</p>
+      </div>
+    </div>
+
+    <div class="topbar__actions">
+      <span id="health-pill" class="pill pill--muted" title="Service health">
+        <span class="pill__dot"></span><span id="health-text">connecting…</span>
+      </span>
+      <button id="btn-load-sample" class="btn btn--secondary" type="button">
+        <span class="btn__spinner" hidden></span>
+        <span class="btn__label">Load sample data</span>
+      </button>
+      <label class="btn btn--primary file-btn" for="file-input">
+        <span class="btn__label">Upload billing export</span>
+        <input id="file-input" type="file" accept=".csv,.json,.txt,application/json,text/csv" hidden />
+      </label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Batch selector -->
+    <section class="toolbar" id="batch-bar" hidden>
+      <label class="field">
+        <span class="field__label">Batch</span>
+        <select id="batch-select" class="select"></select>
+      </label>
+      <span class="toolbar__spacer"></span>
+      <span id="generated-at" class="toolbar__meta"></span>
+    </section>
+
+    <!-- KPI cards -->
+    <section class="kpi-grid" aria-label="Key metrics">
+      <article class="kpi-card kpi-card--danger">
+        <p class="kpi-card__label">Total Monthly Waste</p>
+        <p class="kpi-card__value" id="kpi-monthly">$0</p>
+        <p class="kpi-card__hint" id="kpi-monthly-hint">across detected resources</p>
+      </article>
+      <article class="kpi-card kpi-card--success">
+        <p class="kpi-card__label">Projected Annual Savings</p>
+        <p class="kpi-card__value" id="kpi-annual">$0</p>
+        <p class="kpi-card__hint">if fully remediated</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-card__label">Findings</p>
+        <p class="kpi-card__value" id="kpi-findings">0</p>
+        <p class="kpi-card__hint" id="kpi-findings-hint">units of waste</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-card__label">Resources Scanned</p>
+        <p class="kpi-card__value" id="kpi-resources">0</p>
+        <p class="kpi-card__hint">billing line items</p>
+      </article>
+    </section>
+
+    <!-- Empty state CTA -->
+    <section id="empty-state" class="empty-state" hidden>
+      <div class="empty-state__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-7l-2-2H5a2 2 0 0 0-2 2Z" />
+          <path d="M12 11v5M9.5 13.5h5" />
+        </svg>
+      </div>
+      <h2 class="empty-state__title">No cost data yet</h2>
+      <p class="empty-state__body">
+        Load the bundled AWS + Azure sample, or upload a billing export to scan for
+        orphaned storage, idle compute, unassociated IPs and stale snapshots.
+      </p>
+      <div class="empty-state__actions">
+        <button id="btn-load-sample-2" class="btn btn--primary" type="button">
+          <span class="btn__spinner" hidden></span>
+          <span class="btn__label">Load sample data</span>
+        </button>
+        <label class="btn btn--secondary file-btn" for="file-input-2">
+          <span class="btn__label">Upload billing export</span>
+          <input id="file-input-2" type="file" accept=".csv,.json,.txt,application/json,text/csv" hidden />
+        </label>
+      </div>
+    </section>
+
+    <!-- Data-bearing content -->
+    <div id="content" hidden>
+      <!-- Charts -->
+      <section class="charts-grid">
+        <article class="panel">
+          <header class="panel__head">
+            <h2 class="panel__title">Waste by Severity</h2>
+            <span class="panel__hint">monthly $</span>
+          </header>
+          <div class="chart-wrap chart-wrap--donut">
+            <canvas id="chart-severity" role="img" aria-label="Waste by severity"></canvas>
+          </div>
+        </article>
+        <article class="panel">
+          <header class="panel__head">
+            <h2 class="panel__title">Waste by Category</h2>
+            <span class="panel__hint">monthly $</span>
+          </header>
+          <div class="chart-wrap">
+            <canvas id="chart-category" role="img" aria-label="Waste by category"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <!-- AI analysis -->
+      <section class="panel panel--ai">
+        <header class="panel__head">
+          <div>
+            <h2 class="panel__title">AI FinOps Analysis</h2>
+            <span class="panel__hint">executive summary &amp; prioritized runbook</span>
+          </div>
+          <button id="btn-analyze" class="btn btn--accent" type="button">
+            <span class="btn__spinner" hidden></span>
+            <span class="btn__label">Run analysis</span>
+          </button>
+        </header>
+        <div id="analysis-empty" class="panel__placeholder">
+          Run an analysis to generate an executive summary and a prioritized remediation
+          runbook. Works offline (deterministic) or via your configured LLM.
+        </div>
+        <div id="analysis-result" class="analysis" hidden>
+          <div class="analysis__meta">
+            <span id="analysis-mode" class="badge"></span>
+            <span id="analysis-provider" class="badge badge--ghost"></span>
+          </div>
+          <p id="analysis-summary" class="analysis__summary"></p>
+          <h3 class="analysis__subtitle">Prioritized runbook</h3>
+          <ol id="analysis-runbook" class="runbook"></ol>
+        </div>
+      </section>
+
+      <!-- Findings table -->
+      <section class="panel">
+        <header class="panel__head">
+          <div>
+            <h2 class="panel__title">Top Offenders</h2>
+            <span class="panel__hint" id="findings-meta"></span>
+          </div>
+          <a id="export-link" class="btn btn--ghost" href="/api/v1/export/remediation.sh" download>
+            <span class="btn__label">Export remediation.sh</span>
+          </a>
+        </header>
+        <div class="table-wrap">
+          <table class="findings">
+            <thead>
+              <tr>
+                <th class="col-sev">Severity</th>
+                <th class="col-res">Resource</th>
+                <th class="col-type">Type</th>
+                <th class="col-cat">Category</th>
+                <th class="col-cost num">$/mo</th>
+                <th class="col-rem">Remediation</th>
+              </tr>
+            </thead>
+            <tbody id="findings-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>FinOptic · FinOps Cloud Cost Optimizer</span>
+    <span id="footer-version" class="footer__version"></span>
+  </footer>
+</body>
+</html>
